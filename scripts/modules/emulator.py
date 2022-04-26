@@ -97,7 +97,7 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
     for i in range(num_vars):
         if doe_var[i] == 1:
             doe_unscaled[num_center_points:, i] = doe_plan[:, doe_var_idx[i]]
-    doe_norm = doe_unscaled
+    
 
     # scale all vars according to var_lims
     doe_scaled = doe_unscaled
@@ -109,20 +109,18 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
         else:
             doe_scaled[:,i]=var_lims[k]
 
-    return doe_scaled, doe_norm
+    return doe_scaled
 
 
 def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
 
     num_center_points = 1
-    [doe_scaled, doe_unscaled] =  generate_doe(num_runs, var_lims, num_center_points)
-    model_param_combinations = doe_scaled
+    model_param_combinations =  generate_doe(num_runs, var_lims, num_center_points)
+
     doe_design = pd.DataFrame(
         model_param_combinations, columns=[k for k in var_lims.keys()]
     )
-    doe_normalized = pd.DataFrame(
-        doe_unscaled, columns=[k for k in var_lims.keys()]
-    )
+    
 
 
     col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer","W:Feed"]
@@ -172,8 +170,5 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
     owu_df.to_csv(filename, index=False)
     
     doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
-    print(doe_design)
-    doe_normalized.to_csv(filename.replace(".csv","_doe_normalized.csv"),index=False)
-    print(doe_normalized)
 
     return owu_df
