@@ -97,6 +97,7 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
     for i in range(num_vars):
         if doe_var[i] == 1:
             doe_unscaled[num_center_points:, i] = doe_plan[:, doe_var_idx[i]]
+    doe_norm = doe_unscaled
 
     # scale all vars according to var_lims
     doe_scaled = doe_unscaled
@@ -108,7 +109,7 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
         else:
             doe_scaled[:,i]=var_lims[k]
 
-    return doe_scaled, doe_unscaled
+    return doe_scaled, doe_norm
 
 
 def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
@@ -170,9 +171,9 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
 
     owu_df.to_csv(filename, index=False)
     
-    doe_design.to_csv(filename.replace(".csv","doe.csv"),index=False)
+    doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
     print(doe_design)
-    doe_normalized.to_csv(filename.replace(".csv","doe_normalized.csv"),index=False)
+    doe_normalized.to_csv(filename.replace(".csv","_doe_normalized.csv"),index=False)
     print(doe_normalized)
 
     return owu_df
