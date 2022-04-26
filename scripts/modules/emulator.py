@@ -108,18 +108,19 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
         else:
             doe_scaled[:,i]=var_lims[k]
 
-    return doe_scaled
+    return doe_scaled, doe_unscaled
 
 
 def generate_data(var_lims, num_runs, filename="OWUExperiments-test.csv"):
 
     num_center_points = 1
-    model_param_combinations = generate_doe(num_runs, var_lims, num_center_points)
+    doe_original, doe_normalized =  generate_doe(num_runs, var_lims, num_center_points)
+    model_param_combinations = doe_original
     doe_design = pd.DataFrame(
         model_param_combinations, columns=[k for k in var_lims.keys()]
     )
 
-    col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer"]
+    col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer","W:Feed"]
     owu_df = pd.DataFrame(columns=col_names)
 
     i = 0
@@ -151,16 +152,22 @@ def generate_data(var_lims, num_runs, filename="OWUExperiments-test.csv"):
         process_param = (feed_start, feed_end, Glc_feed_rate, Glc_0, VCD_0)
 
         t, y = predict_chrom_phase(model_param, process_param)
-
-        t = np.array([t]) / 24
-        res = np.hstack([t.T, y])
-
+        
+        time = np.array([t]).T /24
+        xvar = y
+        wvar = np.zeros_like(time)
+        wvar[int(feed_start):int(feed_end),:] = Glc_feed_rate
+        res =  np.hstack([time, xvar,wvar])
+        
         owu_df = pd.concat(
             [owu_df, pd.DataFrame(res, columns=col_names)], ignore_index=True
         )
 
+
     owu_df.to_csv(filename, index=False)
     
-    doe_design.to_csv(filename.replace(".csv","_doe_scaled.csv"),index=False)
+    doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
+    doe_normalized.to_csv(filename.replace(".csv","_doe_normalized.csv"),index=False)
+    
 
     return owu_df
