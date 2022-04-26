@@ -171,7 +171,8 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
     owu_df.to_csv(filename, index=False)
     
     doe_design.to_csv(filename.replace(".csv","doe.csv"),index=False)
+    print(doe_design)
     doe_normalized.to_csv(filename.replace(".csv","doe_normalized.csv"),index=False)
-    
+    print(doe_normalized)
 
     return owu_df
