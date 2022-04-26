@@ -111,10 +111,10 @@ def generate_doe(num_exp: int, var_lims: dict, num_center_points=1, seed=123):
     return doe_scaled, doe_unscaled
 
 
-def generate_data(var_lims, num_runs, filename="OWUExperiments-test.csv"):
+def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
 
     num_center_points = 1
-    doe_scaled, doe_unscaled =  generate_doe(num_runs, var_lims, num_center_points)
+    [doe_scaled, doe_unscaled] =  generate_doe(num_runs, var_lims, num_center_points)
     model_param_combinations = doe_scaled
     doe_design = pd.DataFrame(
         model_param_combinations, columns=[k for k in var_lims.keys()]
@@ -170,8 +170,8 @@ def generate_data(var_lims, num_runs, filename="OWUExperiments-test.csv"):
 
     owu_df.to_csv(filename, index=False)
     
-    doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
-    doe_normalized.to_csv(filename.replace(".csv","_doe_normalized.csv"),index=False)
+    doe_design.to_csv(filename.replace(".csv","doe.csv"),index=False)
+    doe_normalized.to_csv(filename.replace(".csv","doe_normalized.csv"),index=False)
     
 
     return owu_df
