@@ -199,7 +199,7 @@ def generate_y(bwu,return_aggr=False):
         x_prod = [0]
         x_aggr = [0]
         k_aggr=10**-7
-        for i in run_df.index.get_level_values(0):
+        for i in x_titer.index.get_level_values(0):
             if i==0: continue
             xt_titer = x_titer[i]
             dt_titer = x_titer[i]-x_titer[i-1]
