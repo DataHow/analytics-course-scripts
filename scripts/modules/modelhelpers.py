@@ -1,4 +1,5 @@
 def vip(x, y, model):
+    import numpy as np
     t = model.x_scores_
     w = model.x_weights_
     q = model.y_loadings_
