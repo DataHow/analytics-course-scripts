@@ -14,13 +14,12 @@ def chrome_ode(t, y, p):
         k_Glc,
         k_Lac,
         k_Prod,
-        k_Aggr,
         feed_start,
         feed_end,
         Glc_feed_rate,
     ) = p
 
-    VCD, Glc, Lac, Titer, Aggr = y[0], y[1], y[2], y[3], y[4]
+    VCD, Glc, Lac, titer = y[0], y[1], y[2], y[3]
     MM_Glc = Glc / (K_g_Glc + Glc)
     mu_g = mu_g_max * MM_Glc * K_I_Lac / (K_I_Lac + Lac)
     phi = np.exp(0.1 * (Glc - 75.0))
@@ -32,21 +31,20 @@ def chrome_ode(t, y, p):
     dVCDdt = (mu_g - mu_d) * VCD
     dGlcdt = -k_Glc * Glc_Min * VCD
     dLacdt = k_Lac * VCD
-    dAggrdt = k_Aggr * Titer ** 2.0
-    dTiterdt = k_Prod * MM_Glc * ((1.0 - growth_ratio) ** 2.0) * VCD - 2.0*(dAggrdt)
+    dTiterdt = k_Prod * MM_Glc * ((1.0 - growth_ratio) ** 2.0) * VCD
 
     # add feed rate
     if feed_end >= t >= feed_start:
         dGlcdt += Glc_feed_rate
 
-    return [dVCDdt, dGlcdt, dLacdt, dTiterdt, dAggrdt]
+    return [dVCDdt, dGlcdt, dLacdt, dTiterdt]
 
 
 def predict_chrom_phase(model_param, process_param):
     feed_start, feed_end, Glc_feed_rate, Glc_0, VCD_0 = process_param
-    mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod, k_Aggr = model_param
+    mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod = model_param
 
-    y0 = [VCD_0, Glc_0, 0, 0, 0]
+    y0 = [VCD_0, Glc_0, 0, 0]
     t_start, t_end = 0, 24 * 14
     t_span = np.arange(t_start, t_end + 24, 24)
     p = (
@@ -58,7 +56,6 @@ def predict_chrom_phase(model_param, process_param):
         k_Glc,
         k_Lac,
         k_Prod,
-        k_Aggr,
         24.0 * feed_start,
         24.0 * feed_end,
         Glc_feed_rate /24,
