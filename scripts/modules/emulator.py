@@ -14,7 +14,7 @@ def chrome_ode(t, y, p):
         k_Glc,
         k_Lac,
         k_Prod,
-        k_Aggr
+        k_Aggr,
         feed_start,
         feed_end,
         Glc_feed_rate,
