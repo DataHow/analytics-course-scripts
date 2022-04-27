@@ -172,3 +172,54 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
     doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
 
     return owu_df
+
+
+def generate_bwu(owu):
+    # Input: multiindex OWU
+    # Output: singleindex BWU
+    for run_ix,run in owu.groupby("run"):
+        if run_ix == 0: 
+            bwuindex = run.unstack(level=1)
+        else:
+            bwuindex = pd.concat([bwuindex, run.unstack(level=1)])
+    bwu_columns = [str(bwuindex.columns.get_level_values(0)[i])+str(":")+str(bwuindex.columns.get_level_values(1)[i]) for i in range(len(bwuindex.columns.get_level_values(0)))]
+    bwu = pd.DataFrame(bwuindex.to_numpy(), columns=bwu_columns)
+    
+    return bwu
+
+def generate_y(bwu,return_aggr=False):
+    # Input: singleindex BWU
+    # Output: singleindex BWU having only target
+    titer_column = [c for c in bwu.columns if c.startswith('X:Titer')]
+    targets= pd.DataFrame(columns = ["Y:Titer","Y:Aggr"],index=bwu.index)
+
+    # iterate through experiments
+    for j in list(bwu.index):
+        x_titer = bwu.loc[j,titer_column]
+        x_prod = [0]
+        x_aggr = [0]
+        k_aggr=10**-7
+        for i in run_df.index.get_level_values(0):
+            if i==0: continue
+            xt_titer = x_titer[i]
+            dt_titer = x_titer[i]-x_titer[i-1]
+            x_prod.append(xt_titer)
+            x_aggr.append(k_aggr*(xt_titer**2))
+    
+            dt_aggr = x_aggr[i]-x_aggr[i-1]
+            dt_prod = dt_titer - 2*dt_aggr
+            dt_aggr = k_aggr*(x_prod[i-1] + dt_prod)**2
+
+            x_aggr[i] = x_aggr[i-1] + dt_aggr
+            x_prod[i] = x_prod[i-1] + dt_prod
+        y_prod = x_prod[-1]
+        y_aggr = x_aggr[-1]
+        targets.loc[j,"Y:Prod"]=y_prod
+        targets.loc[j,"Y:Aggr"]=y_aggr
+    if return_aggr:
+        target = targets["Y:Aggr"]
+    else:
+        target = targets["Y:Prod"]
+
+    return target
+
