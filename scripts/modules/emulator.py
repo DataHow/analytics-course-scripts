@@ -20,7 +20,7 @@ def chrome_ode(t, y, p):
         Glc_feed_rate,
     ) = p
 
-    VCD, Glc, Lac, titer = y[0], y[1], y[2], y[3]
+    VCD, Glc, Lac, Titer, Aggr = y[0], y[1], y[2], y[3], y[4]
     MM_Glc = Glc / (K_g_Glc + Glc)
     mu_g = mu_g_max * MM_Glc * K_I_Lac / (K_I_Lac + Lac)
     phi = np.exp(0.1 * (Glc - 75.0))
@@ -32,7 +32,7 @@ def chrome_ode(t, y, p):
     dVCDdt = (mu_g - mu_d) * VCD
     dGlcdt = -k_Glc * Glc_Min * VCD
     dLacdt = k_Lac * VCD
-    dAggrdt = k_Aggr * titer ** 2.0
+    dAggrdt = k_Aggr * Titer ** 2.0
     dTiterdt = k_Prod * MM_Glc * ((1.0 - growth_ratio) ** 2.0) * VCD - 2.0*(dAggrdt)
 
     # add feed rate
