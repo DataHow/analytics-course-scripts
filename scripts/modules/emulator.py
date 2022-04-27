@@ -221,5 +221,5 @@ def generate_y(bwu,return_aggr=False):
     else:
         target = targets["Y:Prod"]
 
-    return target
+    return pd.DataFrame(target)
 
