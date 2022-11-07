@@ -214,7 +214,7 @@ def generate_y(bwu,return_aggr=False):
             x_prod[i] = x_prod[i-1] + dt_prod
         y_prod = x_prod[-1]
         y_aggr = x_aggr[-1]
-        :i
+        
         targets.loc[j,"Y:Titer"]=y_prod
         targets.loc[j,"Y:Aggr"]=y_aggr
     if return_aggr:
