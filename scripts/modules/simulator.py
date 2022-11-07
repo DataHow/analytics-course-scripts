@@ -154,7 +154,7 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
         )
         process_param = (feed_start, feed_end, Glc_feed_rate, Glc_0, VCD_0)
 
-        t, y = predict_chrom_phase(model_param, process_param)
+        t, y = predict_process(model_param, process_param)
         
         time = np.array([t]).T /24
         xvar = y
