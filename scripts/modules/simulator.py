@@ -4,7 +4,7 @@ import scipy.stats
 import scipy.integrate
 
 
-def chrome_ode(t, y, p):
+def process_ode(t, y, p):
     (
         mu_g_max,
         mu_d_max,
@@ -40,7 +40,7 @@ def chrome_ode(t, y, p):
     return [dVCDdt, dGlcdt, dLacdt, dTiterdt]
 
 
-def predict_chrom_phase(model_param, process_param):
+def predict_process(model_param, process_param):
     feed_start, feed_end, Glc_feed_rate, Glc_0, VCD_0 = process_param
     mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod = model_param
 
@@ -63,7 +63,7 @@ def predict_chrom_phase(model_param, process_param):
 
     # integrates equations
     sol = scipy.integrate.solve_ivp(
-        chrome_ode,
+        process_ode,
         t_span=[t_start, t_end],
         y0=y0,
         t_eval=t_span,
