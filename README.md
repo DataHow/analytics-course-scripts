@@ -16,12 +16,13 @@
 
 Part 1:
 
-* 00_Process_Characterization
-* 01_PCA
-* 02_PLS_RSM
-* 03_Gaussian_Processes
+* 00_Process_Simulation
+* 01_PCA (Principal Component Analysis)
+* 02_PLS (Linear Regression and Partial Least Squares)
+* 03_GP (Gaussian Processes)
 
 Part 2:
 
 * 04_Hybrid_Model
-* 05_Bayesian_Optimization
+* 05_Ensembles
+* 06_Bayesian_Optimization
