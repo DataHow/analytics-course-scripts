@@ -130,7 +130,7 @@ def plot_ensemble(X_train, y_train, X_test, y_test, y_hat, model, upper, lower):
                 showlegend=False,
             ),
             go.Scatter(
-                name="Parametric CI",
+                name="Parametric PI",
                 x=X_train,
                 y=param_lower,
                 marker=dict(color="rgba(255, 99, 71, 0.5)"),
