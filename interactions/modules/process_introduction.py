@@ -1,10 +1,6 @@
 from google.colab import output
-from ipywidgets import interact, interactive,fixed
+from ipywidgets import interact,interactive,fixed
 import ipywidgets as widgets
-from sklearn import datasets
-from pyDOE2 import fullfact, ff2n, ccdesign
-import definitive_screening_design as dsd
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
@@ -248,12 +244,16 @@ def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_de
         lhsampler = scipy.stats.qmc.LatinHypercube(d=sum(doe_var), scramble=False, seed=rng)
         doe_plan = lhsampler.random(n=num_samples)
     if doe_design == "2-level Full-Factorial":
+        from pyDOE2 import ff2n
         doe_plan = (ff2n(sum(doe_var))+1)/2
     if doe_design == "3-level Full-Factorial":
+        from pyDOE2 import fullfact
         doe_plan = fullfact([3]*sum(doe_var))/2
     if doe_design == "Central-Composite":
+        from pyDOE2 import ccdesign
         doe_plan = (ccdesign(sum(doe_var),center=(0,1), face='cci')+1)/2
     if doe_design == "Definitive-Screening":
+        import definitive_screening_design as dsd
         doe_plan = (dsd.generate(n_num=sum(doe_var),verbose=False).values+1)/2
     if num_runs < len(doe_plan):
         print(f"\n The selected design requires {len(doe_plan)} euns, while only {num_runs} runs were selected!")
