@@ -243,8 +243,6 @@ def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_de
     doe_var = [1 if type(v) is tuple and v[0] < v[1] else 0 for v in var_lims.values()]
     doe_var_idx = np.cumsum(doe_var) - 1
 
-    print(doe_design, type(doe_design))
-
     if doe_design == "Latin-Hypercube Sampling":
         # sample points in the latin hypercube
         lhsampler = scipy.stats.qmc.LatinHypercube(d=sum(doe_var), scramble=False, seed=rng)
