@@ -443,3 +443,54 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
       fig.add_trace(go.Scatter(x=list(range(15)), y=owu_df[c].values[highlight_run_ix],name="Run = "+ str(highlight_run), marker=dict(color="black",size=10)),row=1, col=i+1)
     fig.update_layout(showlegend=False, title_text=f"Process variable evolution for selected runs and values colored by {select_color}", width=1600)
     fig.show()
+
+
+def generate_bwu(owu):
+    # Input: multiindex OWU
+    # Output: singleindex BWU
+    for run_ix,run in owu.groupby("run"):
+        if run_ix == 0:
+            bwuindex = run.unstack(level=1)
+        else:
+            bwuindex = pd.concat([bwuindex, run.unstack(level=1)])
+    bwu_columns = [str(bwuindex.columns.get_level_values(0)[i])+str(":")+str(bwuindex.columns.get_level_values(1)[i]) for i in range(len(bwuindex.columns.get_level_values(0)))]
+    bwu = pd.DataFrame(bwuindex.to_numpy(), columns=bwu_columns)
+
+    return bwu
+
+def generate_y(bwu,return_aggr=False):
+    # Input: singleindex BWU
+    # Output: singleindex BWU having only target
+    titer_column = [c for c in bwu.columns if c.startswith('X:Titer')]
+    targets= pd.DataFrame(columns = ["Y:Titer","Y:Aggr"],index=bwu.index)
+
+    # iterate through experiments
+    for j in list(bwu.index):
+        x_titer = bwu.loc[j,titer_column]
+        x_prod = [0]
+        x_aggr = [0]
+        k_aggr=10**-7
+        for i in range(len(x_titer)):
+            if i==0: continue
+            xt_titer = x_titer[i]
+            dt_titer = x_titer[i]-x_titer[i-1]
+            x_prod.append(xt_titer)
+            x_aggr.append(k_aggr*(xt_titer**2))
+
+            dt_aggr = x_aggr[i]-x_aggr[i-1]
+            dt_prod = dt_titer - 2*dt_aggr
+            dt_aggr = k_aggr*(x_prod[i-1] + dt_prod)**2
+
+            x_aggr[i] = x_aggr[i-1] + dt_aggr
+            x_prod[i] = x_prod[i-1] + dt_prod
+        y_prod = x_prod[-1]
+        y_aggr = x_aggr[-1]
+
+        targets.loc[j,"Y:Titer"]=y_prod
+        targets.loc[j,"Y:Aggr"]=y_aggr
+    if return_aggr:
+        target = targets["Y:Aggr"]
+    else:
+        target = targets["Y:Titer"]
+
+    return pd.DataFrame(target)
