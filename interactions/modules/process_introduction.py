@@ -1,18 +1,25 @@
-from google.colab import output
-from ipywidgets import interact,interactive,fixed
+#@title Import libraries
+import importlib
 import ipywidgets as widgets
+from ipywidgets import interact,interactive,fixed
+from google.colab import output
+output.enable_custom_widget_manager()
+
 import numpy as np
 import pandas as pd
 import os
+import importlib
 import scipy.integrate
 import scipy.stats
+import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import plotly.io as pio
 pio.templates.default = "plotly_white"
-output.enable_custom_widget_manager()
 
+# Script 0
+from pyDOE2 import fullfact, ff2n, ccdesign
+import definitive_screening_design as dsd
 
 FEED_START= widgets.FloatRangeSlider(
     value=[1, 4],
@@ -125,7 +132,6 @@ SELECT_COLOR = widgets.Select(
     description='select color',
     disabled=False
 )
-
 
 def process_ode(t, y, p):
     (mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod, feed_start, feed_end, Glc_feed_rate) = p
@@ -244,19 +250,15 @@ def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_de
         lhsampler = scipy.stats.qmc.LatinHypercube(d=sum(doe_var), scramble=False, seed=rng)
         doe_plan = lhsampler.random(n=num_samples)
     if doe_design == "2-level Full-Factorial":
-        from pyDOE2 import ff2n
         doe_plan = (ff2n(sum(doe_var))+1)/2
     if doe_design == "3-level Full-Factorial":
-        from pyDOE2 import fullfact
         doe_plan = fullfact([3]*sum(doe_var))/2
     if doe_design == "Central-Composite":
-        from pyDOE2 import ccdesign
         doe_plan = (ccdesign(sum(doe_var),center=(0,1), face='cci')+1)/2
     if doe_design == "Definitive-Screening":
-        import definitive_screening_design as dsd
         doe_plan = (dsd.generate(n_num=sum(doe_var),verbose=False).values+1)/2
     if num_runs < len(doe_plan):
-        print(f"\n The selected design requires {len(doe_plan)} euns, while only {num_runs} runs were selected!")
+        print(f"\n The selected design requires {len(doe_plan)} runs, while only {num_runs} runs were selected!")
         print(" Only a subset of created runs will be used!\n")
         subset_idx = np.sort(np.random.choice(range(len(doe_plan)),size=num_runs, replace=False))
         doe_plan= doe_plan[subset_idx,:]
@@ -378,21 +380,6 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
         """
         Plotly continuous colorscales assign colors to the range [0, 1]. This function computes the intermediate
         color for any value in that range.
-
-        Plotly doesn't make the colorscales directly accessible in a common format.
-        Some are ready to use:
-
-            colorscale = plotly.colors.PLOTLY_SCALES["Greens"]
-
-        Others are just swatches that need to be constructed into a colorscale:
-
-            viridis_colors, scale = plotly.colors.convert_colors_to_same_type(plotly.colors.sequential.Viridis)
-            colorscale = plotly.colors.make_colorscale(viridis_colors, scale=scale)
-
-        :param colorscale: A plotly continuous colorscale defined with RGB string colors.
-        :param intermed: value in the range [0, 1]
-        :return: color in rgb string format
-        :rtype: str
         """
         if len(colorscale) < 1:
             raise ValueError("colorscale must have at least one color")
@@ -439,10 +426,6 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
 
     owu_columns = owu_df.columns[1:-1]
     fig = make_subplots(rows=1, cols=5, subplot_titles=owu_columns)
-    # for i,c in enumerate(owu_columns):
-    #     for j in range(len(doe_df)):
-    #         plot_run_ix = owu_df.index.get_level_values("run") == j
-    #         fig.add_trace(go.Scatter(x=list(range(15)), y=owu_df[c].values[plot_run_ix], name="Run = " + str(j),marker=dict(color=px.colors.qualitative.Plotly[j % 10])), row=1, col=i+1)
 
     for i,c in enumerate(owu_columns):
         fig.add_trace(go.Scatter(x=list(range(15)),y=owu_df[c],mode='markers',marker=dict(size=0,color="rgba(0,0,0,0)",colorscale='Portland',cmin=min(color_idx),cmax=max(color_idx),colorbar=dict(thickness=40, title=str(select_color))),showlegend=False), row=1, col=i+1)
