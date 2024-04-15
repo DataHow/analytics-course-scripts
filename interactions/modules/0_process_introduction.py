@@ -449,7 +449,6 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
         for color_val in np.unique(color_idx):
             color_val_norm = (color_val -min(color_idx)) / (max(color_idx)-min(color_idx))
             owu_subset = owu_df[owu_df['color']==color_val]
-            # print(owu_subset)
             fig.add_trace(go.Scatter(x=list(range(15)),y=owu_subset[c],mode='lines+markers',name="Run id = " + str(owu_df.index.get_level_values(0)[color_val == color_idx][0]),marker=dict(color=get_color('Portland',color_val_norm))), row=1, col=i+1)
 
 
