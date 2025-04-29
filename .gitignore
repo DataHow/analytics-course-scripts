@@ -5,3 +5,4 @@ emulators/
 *.pyc
 *.vscode
 *.json
+*.DS_Store
