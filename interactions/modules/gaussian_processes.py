@@ -34,7 +34,7 @@ def plot_generator_function(XGRID=np.arange(0,7,0.1), XPOINTS=np.array(range(1,7
   fig.add_trace(go.Scatter(x=XGRID,y=f(XGRID,beta0,beta1,beta2,beta3,sigma=0),mode='lines',line=dict(color = 'rgb(49,130,189)'),name="Originator function"))
   fig.add_trace(go.Scatter(x=XPOINTS,y=YPOINTS,mode='markers',marker=dict(color = 'rgb(239,85,59)',size=10),name="Generated data"))
   if kernel is not None:
-    fig.add_trace(go.Scatter(x=XGRID,y=kernel_fcn(XGRID,kernel_center,kernel_sigma),mode='lines',marker=dict(size=10),name="Kernel function"),secondary_y=True)
+    fig.add_trace(go.Scatter(x=XGRID,y=kernel_fcn(XGRID,kernel_center,kernel_sigma,kernel=kernel),mode='lines',marker=dict(size=10),name="Kernel function"),secondary_y=True)
   fig.update_layout(showlegend=True,title="Generated function we try to learn",xaxis_title="x",yaxis_title="y")
   fig.update_layout(width=1000)
   fig.show()
