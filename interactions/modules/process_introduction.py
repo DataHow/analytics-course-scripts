@@ -1,8 +1,9 @@
-#@title Import libraries
+# @title Import libraries
 import importlib
 import ipywidgets as widgets
-from ipywidgets import interact,interactive,fixed
+from ipywidgets import interact, interactive, fixed
 from google.colab import output
+
 output.enable_custom_widget_manager()
 
 import numpy as np
@@ -15,96 +16,102 @@ import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
 pio.templates.default = "plotly_white"
 
-FEED_START= widgets.FloatRangeSlider(
+FEED_START = widgets.FloatRangeSlider(
     value=[1, 4],
     min=0,
     max=6,
     step=1,
-    description='feed_start',
+    description="feed_start",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='',
+    readout_format="",
 )
 FEED_END = widgets.FloatRangeSlider(
     value=[8, 12],
     min=6,
     max=14,
     step=1,
-    description='feed_end',
+    description="feed_end",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='',
+    readout_format="",
 )
 FEED_RATE = widgets.FloatRangeSlider(
     value=[5, 20],
     min=1,
     max=30,
     step=0.5,
-    description='feed_rate',
+    description="feed_rate",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='',
+    readout_format="",
 )
 GLC_0 = widgets.FloatRangeSlider(
     value=[10, 40],
     min=1,
     max=80,
     step=0.5,
-    description='glc_0',
+    description="glc_0",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='.1f',
+    readout_format=".1f",
 )
 VCD_0 = widgets.FloatRangeSlider(
     value=[0.1, 1.0],
     min=0.1,
     max=2.0,
     step=0.1,
-    description='vcd_0',
+    description="vcd_0",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='.1f',
+    readout_format=".1f",
 )
 NUM_RUNS = widgets.IntSlider(
     value=40,
     min=1,
     max=100,
     step=1,
-    description='num_runs',
+    description="num_runs",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='d'
+    readout_format="d",
 )
 DOE_DESIGN = widgets.Select(
-    options=['Latin-Hypercube Sampling', '2-level Full-Factorial', '3-level Full-Factorial','Central-Composite','Definitive-Screening'],
-    value='Latin-Hypercube Sampling',
+    options=[
+        "Latin-Hypercube Sampling",
+        "2-level Full-Factorial",
+        "3-level Full-Factorial",
+        "Central-Composite",
+        "Definitive-Screening",
+    ],
+    value="Latin-Hypercube Sampling",
     rows=5,
-    description='doe_design',
-    disabled=False
+    description="doe_design",
+    disabled=False,
 )
-
 
 
 SELECT_RUNS = widgets.SelectMultiple(
     options=list(range(100)),
-    value=[0,1],
+    value=[0, 1],
     rows=10,
-    description='select_runs',
-    disabled=False
+    description="select_runs",
+    disabled=False,
 )
 
 
@@ -113,24 +120,45 @@ HIGHLIGHT_RUN = widgets.IntSlider(
     min=0,
     max=99,
     step=1,
-    description='highlight run',
+    description="highlight run",
     disabled=False,
     continuous_update=False,
-    orientation='horizontal',
+    orientation="horizontal",
     readout=True,
-    readout_format='d'
+    readout_format="d",
 )
 
 SELECT_COLOR = widgets.Select(
-    options=["run id","titer_14","feed_start","feed_end","feed_rate","glc_0","vcd_0"],
+    options=[
+        "run id",
+        "titer_14",
+        "feed_start",
+        "feed_end",
+        "feed_rate",
+        "glc_0",
+        "vcd_0",
+    ],
     value="titer_14",
     rows=7,
-    description='select color',
-    disabled=False
+    description="select color",
+    disabled=False,
 )
 
+
 def process_ode(t, y, p):
-    (mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod, feed_start, feed_end, Glc_feed_rate) = p
+    (
+        mu_g_max,
+        mu_d_max,
+        K_g_Glc,
+        K_I_Lac,
+        K_d_Lac,
+        k_Glc,
+        k_Lac,
+        k_Prod,
+        feed_start,
+        feed_end,
+        Glc_feed_rate,
+    ) = p
 
     VCD, Glc, Lac, titer = y[0], y[1], y[2], y[3]
     MM_Glc = Glc / (K_g_Glc + Glc)
@@ -154,19 +182,17 @@ def process_ode(t, y, p):
 
 
 def predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0):
-
     MU_G_MAX = 0.05
     MU_D_MAX = 0.025
-    K_G_GLC  = 1
-    K_I_LAC  = 30
-    K_D_LAC  = 50
-    K_GLC    = 0.04
-    K_LAC    = 0.06
-    K_PROD   = 1
-    MODEL_PARAM = [MU_G_MAX,MU_D_MAX,K_G_GLC,K_I_LAC,K_D_LAC,K_GLC,K_LAC,K_PROD]
+    K_G_GLC = 1
+    K_I_LAC = 30
+    K_D_LAC = 50
+    K_GLC = 0.04
+    K_LAC = 0.06
+    K_PROD = 1
+    MODEL_PARAM = [MU_G_MAX, MU_D_MAX, K_G_GLC, K_I_LAC, K_D_LAC, K_GLC, K_LAC, K_PROD]
 
     mu_g_max, mu_d_max, K_g_Glc, K_I_Lac, K_d_Lac, k_Glc, k_Lac, k_Prod = MODEL_PARAM
-
 
     y0 = [vcd_0, glc_0, 0, 0]
     t_start, t_end = 0, 24 * 14
@@ -182,7 +208,7 @@ def predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0):
         k_Prod,
         24.0 * feed_start,
         24.0 * feed_end,
-        feed_rate /24,
+        feed_rate / 24,
     )
 
     # integrates equations
@@ -202,33 +228,52 @@ def predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0):
 
     return t, y
 
-def plot_process(feed_start, feed_end, feed_rate, glc_0, vcd_0):
-    t,x = predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0)
 
-    time = np.array([t]).T /24
+def plot_process(feed_start, feed_end, feed_rate, glc_0, vcd_0):
+    t, x = predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0)
+
+    time = np.array([t]).T / 24
     xvar = x
     wvar = np.zeros_like(time)
-    wvar[int(feed_start):int(feed_end),:] = feed_rate
-    res =  np.hstack([time, xvar,wvar])
+    wvar[int(feed_start) : int(feed_end), :] = feed_rate
+    res = np.hstack([time, xvar, wvar])
 
-    run = pd.DataFrame(res, columns=["Time","X:VCD", "X:Glc", "X:Lac", "X:Titer","W:Feed"])
+    run = pd.DataFrame(
+        res, columns=["Time", "X:VCD", "X:Glc", "X:Lac", "X:Titer", "W:Feed"]
+    )
 
     fig = make_subplots(rows=1, cols=5, subplot_titles=run.columns[1:])
-    for i,column in enumerate(run.columns):
-        if i==0:
+    for i, column in enumerate(run.columns):
+        if i == 0:
             continue
-        fig.add_trace(go.Scatter(x=run["Time"].values, y=run[column].values),row=1,col=i)
-    fig.update_layout(showlegend=False, title_text="Process variables evolution for generated run",width=1600)
+        fig.add_trace(
+            go.Scatter(x=run["Time"].values, y=run[column].values), row=1, col=i
+        )
+    fig.update_layout(
+        showlegend=False,
+        title_text="Process variables evolution for generated run",
+        width=1600,
+    )
     fig.show()
 
 
-def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_design="Latin-Hypercube Sampling", num_center_points=1, seed=123):
+def generate_doe(
+    feed_start,
+    feed_end,
+    feed_rate,
+    glc_0,
+    vcd_0,
+    num_runs,
+    doe_design="Latin-Hypercube Sampling",
+    num_center_points=1,
+    seed=123,
+):
     var_lims = {
         "feed_start": feed_start,
         "feed_end": feed_end,
         "fee_rate": feed_rate,
         "glc_0": glc_0,
-        "vcd_0": vcd_0
+        "vcd_0": vcd_0,
     }
 
     rng = np.random.default_rng(seed)
@@ -243,33 +288,41 @@ def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_de
 
     if doe_design == "Latin-Hypercube Sampling":
         # sample points in the latin hypercube
-        lhsampler = scipy.stats.qmc.LatinHypercube(d=sum(doe_var), scramble=False, seed=rng)
+        lhsampler = scipy.stats.qmc.LatinHypercube(
+            d=sum(doe_var), scramble=False, seed=rng
+        )
         doe_plan = lhsampler.random(n=num_samples)
     if doe_design == "2-level Full-Factorial":
-        from pyDOE2 import ff2n
-        doe_plan = (ff2n(sum(doe_var))+1)/2
+        from pyDOE3 import ff2n
+
+        doe_plan = (ff2n(sum(doe_var)) + 1) / 2
     if doe_design == "3-level Full-Factorial":
-        from pyDOE2 import fullfact
-        doe_plan = fullfact([3]*sum(doe_var))/2
+        from pyDOE3 import fullfact
+
+        doe_plan = fullfact([3] * sum(doe_var)) / 2
     if doe_design == "Central-Composite":
-        from pyDOE2 import ccdesign
-        doe_plan = (ccdesign(sum(doe_var),center=(0,1), face='cci')+1)/2
+        from pyDOE3 import ccdesign
+
+        doe_plan = (ccdesign(sum(doe_var), center=(0, 1), face="cci") + 1) / 2
     if doe_design == "Definitive-Screening":
         import definitive_screening_design as dsd
-        doe_plan = (dsd.generate(n_num=sum(doe_var),verbose=False).values+1)/2
-    if num_runs < len(doe_plan):
-        print(f"\n The selected design requires {len(doe_plan)} runs, while only {num_runs} runs were selected!")
-        print(" Only a subset of created runs will be used!\n")
-        subset_idx = np.sort(np.random.choice(range(len(doe_plan)),size=num_runs, replace=False))
-        doe_plan= doe_plan[subset_idx,:]
 
+        doe_plan = (dsd.generate(n_num=sum(doe_var), verbose=False).values + 1) / 2
+    if num_runs < len(doe_plan):
+        print(
+            f"\n The selected design requires {len(doe_plan)} runs, while only {num_runs} runs were selected!"
+        )
+        print(" Only a subset of created runs will be used!\n")
+        subset_idx = np.sort(
+            np.random.choice(range(len(doe_plan)), size=num_runs, replace=False)
+        )
+        doe_plan = doe_plan[subset_idx, :]
 
     # fill remaining unscaled vars
-    doe_unscaled = np.ones([len(doe_plan)+1, num_vars]) * 0.5
+    doe_unscaled = np.ones([len(doe_plan) + 1, num_vars]) * 0.5
     for i in range(num_vars):
         if doe_var[i] == 1:
             doe_unscaled[num_center_points:, i] = doe_plan[:, doe_var_idx[i]]
-
 
     # scale all vars according to var_lims
     doe_scaled = doe_unscaled
@@ -279,40 +332,66 @@ def generate_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_de
                 doe_unscaled[:, i] * (var_lims[k][1] - var_lims[k][0]) + var_lims[k][0]
             )
         else:
-            doe_scaled[:,i]=var_lims[k][0]
+            doe_scaled[:, i] = var_lims[k][0]
 
     return doe_scaled
 
 
 def plot_doe(feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_design):
-
-    doe_scaled = generate_doe(feed_start=feed_start, feed_end=feed_end, feed_rate=feed_rate, glc_0=glc_0, vcd_0=vcd_0, num_runs=num_runs, doe_design=doe_design)
+    doe_scaled = generate_doe(
+        feed_start=feed_start,
+        feed_end=feed_end,
+        feed_rate=feed_rate,
+        glc_0=glc_0,
+        vcd_0=vcd_0,
+        num_runs=num_runs,
+        doe_design=doe_design,
+    )
 
     # generate_data(doe_scaled, feed_start, feed_end, feed_rate, glc_0, vcd_0, num_runs, doe_design)
 
-    fig = go.Figure(data=go.Parcoords(
-        line_color='blue',
-        dimensions = list([
-                dict(label = 'feed_start',values = doe_scaled[:,0].round(),range=list(feed_start)),
-                dict(label = 'feed_end', values = doe_scaled[:,1].round(),range=list(feed_end)),
-                dict(label = 'feed_rate',values = doe_scaled[:,2],range=list(feed_rate)),
-                dict(label = 'glc_0',values = doe_scaled[:,3],range=list(glc_0)),
-                dict(label = 'vcd_0',values = doe_scaled[:,4],range=list(vcd_0)),
-            ])
-    ))
-    fig.update_layout(showlegend=False, title_text=f"Generated design of experiments using {doe_design} with {len(doe_scaled)} runs",width=1600)
+    fig = go.Figure(
+        data=go.Parcoords(
+            line_color="blue",
+            dimensions=list(
+                [
+                    dict(
+                        label="feed_start",
+                        values=doe_scaled[:, 0].round(),
+                        range=list(feed_start),
+                    ),
+                    dict(
+                        label="feed_end",
+                        values=doe_scaled[:, 1].round(),
+                        range=list(feed_end),
+                    ),
+                    dict(
+                        label="feed_rate",
+                        values=doe_scaled[:, 2],
+                        range=list(feed_rate),
+                    ),
+                    dict(label="glc_0", values=doe_scaled[:, 3], range=list(glc_0)),
+                    dict(label="vcd_0", values=doe_scaled[:, 4], range=list(vcd_0)),
+                ]
+            ),
+        )
+    )
+    fig.update_layout(
+        showlegend=False,
+        title_text=f"Generated design of experiments using {doe_design} with {len(doe_scaled)} runs",
+        width=1600,
+    )
 
     fig.show()
     return doe_scaled
 
 
 def generate_data(doe_scaled, filename="/content/generated_owu.csv"):
+    col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer", "W:Feed"]
+    doe_names = ["feed_start", "feed_end", "feed_rate", "glc_0", "vcd_0"]
 
-    col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer","W:Feed"]
-    doe_names = ["feed_start", "feed_end", "feed_rate", "glc_0","vcd_0"]
-
-    doe_df = pd.DataFrame(doe_scaled, columns = doe_names)
-    owu_df = pd.DataFrame(columns = col_names)
+    doe_df = pd.DataFrame(doe_scaled, columns=doe_names)
+    owu_df = pd.DataFrame(columns=col_names)
 
     num_runs = len(doe_scaled)
 
@@ -326,39 +405,52 @@ def generate_data(doe_scaled, filename="/content/generated_owu.csv"):
 
         t, x = predict_process(feed_start, feed_end, feed_rate, glc_0, vcd_0)
 
-        time = np.array([t]).T /24
+        time = np.array([t]).T / 24
         xvar = x
         wvar = np.zeros_like(time)
-        wvar[int(feed_start):int(feed_end),:] = feed_rate
-        res =  np.hstack([time, xvar,wvar])
+        wvar[int(feed_start) : int(feed_end), :] = feed_rate
+        res = np.hstack([time, xvar, wvar])
 
         owu_df = pd.concat(
             [owu_df, pd.DataFrame(res, columns=col_names)], ignore_index=True
         )
 
-
     owu_df.to_csv(filename, index=False)
 
-    doe_df.to_csv(filename.replace("_owu.csv","_doe.csv"),index=False)
+    doe_df.to_csv(filename.replace("_owu.csv", "_doe.csv"), index=False)
 
-    owu_df.index = pd.MultiIndex.from_product([list(range(num_runs)),list(range(15))], names=["run","time"])
+    owu_df.index = pd.MultiIndex.from_product(
+        [list(range(num_runs)), list(range(15))], names=["run", "time"]
+    )
     return owu_df, doe_df
-
 
 
 def plot_data(owu_df, select_runs):
     fig = make_subplots(rows=1, cols=5, subplot_titles=owu_df.columns[1:])
     for j in select_runs:
         plot_run_ix = owu_df.index.get_level_values("run") == j
-        for i,c in enumerate(owu_df.columns):
-            if i==0:
+        for i, c in enumerate(owu_df.columns):
+            if i == 0:
                 continue
-            fig.add_trace(go.Scatter(x=list(range(15)), y=owu_df[c].values[plot_run_ix], name="Run = " + str(j),marker=dict(color=px.colors.qualitative.Plotly[j % 10])), row=1, col=i)
-    fig.update_layout(showlegend=False, title_text="Process variable evolution for selected runs", width=1600)
+            fig.add_trace(
+                go.Scatter(
+                    x=list(range(15)),
+                    y=owu_df[c].values[plot_run_ix],
+                    name="Run = " + str(j),
+                    marker=dict(color=px.colors.qualitative.Plotly[j % 10]),
+                ),
+                row=1,
+                col=i,
+            )
+    fig.update_layout(
+        showlegend=False,
+        title_text="Process variable evolution for selected runs",
+        width=1600,
+    )
     fig.show()
 
-def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
 
+def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
     def get_color(colorscale_name, loc):
         from _plotly_utils.basevalidators import ColorscaleValidator
 
@@ -371,7 +463,6 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
         if hasattr(loc, "__iter__"):
             return [get_continuous_color(colorscale, x) for x in loc]
         return get_continuous_color(colorscale, loc)
-
 
     def get_continuous_color(colorscale, intermed):
         import plotly.colors
@@ -413,81 +504,126 @@ def plot_data_color(owu_df, doe_df, highlight_run=0, select_color="run id"):
             colortype="rgb",
         )
 
-
-
     if select_color == "run id":
-        color_idx=np.repeat(np.array(list(range(len(doe_df)))),15)
+        color_idx = np.repeat(np.array(list(range(len(doe_df)))), 15)
     if select_color == "titer_14":
-        color_idx =np.repeat(np.array(owu_df["X:Titer"][:,14]),15)
+        color_idx = np.repeat(np.array(owu_df["X:Titer"][:, 14]), 15)
     if select_color in doe_df.columns:
-        color_idx = np.repeat(np.array(doe_df[select_color]),15)
+        color_idx = np.repeat(np.array(doe_df[select_color]), 15)
     owu_df["color"] = color_idx
-
 
     owu_columns = owu_df.columns[1:-1]
     fig = make_subplots(rows=1, cols=5, subplot_titles=owu_columns)
 
-    for i,c in enumerate(owu_columns):
-        fig.add_trace(go.Scatter(x=list(range(15)),y=owu_df[c],mode='markers',marker=dict(size=0,color="rgba(0,0,0,0)",colorscale='Portland',cmin=min(color_idx),cmax=max(color_idx),colorbar=dict(thickness=40, title=str(select_color))),showlegend=False), row=1, col=i+1)
+    for i, c in enumerate(owu_columns):
+        fig.add_trace(
+            go.Scatter(
+                x=list(range(15)),
+                y=owu_df[c],
+                mode="markers",
+                marker=dict(
+                    size=0,
+                    color="rgba(0,0,0,0)",
+                    colorscale="Portland",
+                    cmin=min(color_idx),
+                    cmax=max(color_idx),
+                    colorbar=dict(thickness=40, title=str(select_color)),
+                ),
+                showlegend=False,
+            ),
+            row=1,
+            col=i + 1,
+        )
         for color_val in np.unique(color_idx):
-            color_val_norm = (color_val -min(color_idx)) / (max(color_idx)-min(color_idx))
-            owu_subset = owu_df[owu_df['color']==color_val]
-            fig.add_trace(go.Scatter(x=owu_subset.index.get_level_values(1),y=owu_subset[c],mode='lines+markers',name="Run id = " + str(owu_df.index.get_level_values(0)[color_val == color_idx][0]),marker=dict(color=get_color('Portland',color_val_norm))), row=1, col=i+1)
-
-
+            color_val_norm = (color_val - min(color_idx)) / (
+                max(color_idx) - min(color_idx)
+            )
+            owu_subset = owu_df[owu_df["color"] == color_val]
+            fig.add_trace(
+                go.Scatter(
+                    x=owu_subset.index.get_level_values(1),
+                    y=owu_subset[c],
+                    mode="lines+markers",
+                    name="Run id = "
+                    + str(owu_df.index.get_level_values(0)[color_val == color_idx][0]),
+                    marker=dict(color=get_color("Portland", color_val_norm)),
+                ),
+                row=1,
+                col=i + 1,
+            )
 
     highlight_run_ix = owu_df.index.get_level_values("run") == highlight_run
     if highlight_run > len(doe_df):
         print("\n Highlighted run is higher than number of performed experiments \n")
-    for i,c in enumerate(owu_columns):
-      fig.add_trace(go.Scatter(x=list(range(15)), y=owu_df[c].values[highlight_run_ix],name="Run = "+ str(highlight_run), marker=dict(color="black",size=10)),row=1, col=i+1)
-    fig.update_layout(showlegend=False, title_text=f"Process variable evolution for selected runs and values colored by {select_color}", width=1600)
+    for i, c in enumerate(owu_columns):
+        fig.add_trace(
+            go.Scatter(
+                x=list(range(15)),
+                y=owu_df[c].values[highlight_run_ix],
+                name="Run = " + str(highlight_run),
+                marker=dict(color="black", size=10),
+            ),
+            row=1,
+            col=i + 1,
+        )
+    fig.update_layout(
+        showlegend=False,
+        title_text=f"Process variable evolution for selected runs and values colored by {select_color}",
+        width=1600,
+    )
     fig.show()
 
 
 def generate_bwu(owu):
     # Input: multiindex OWU
     # Output: singleindex BWU
-    for run_ix,run in owu.groupby("run"):
+    for run_ix, run in owu.groupby("run"):
         if run_ix == 0:
             bwuindex = run.unstack(level=1)
         else:
             bwuindex = pd.concat([bwuindex, run.unstack(level=1)])
-    bwu_columns = [str(bwuindex.columns.get_level_values(0)[i])+str(":")+str(bwuindex.columns.get_level_values(1)[i]) for i in range(len(bwuindex.columns.get_level_values(0)))]
+    bwu_columns = [
+        str(bwuindex.columns.get_level_values(0)[i])
+        + str(":")
+        + str(bwuindex.columns.get_level_values(1)[i])
+        for i in range(len(bwuindex.columns.get_level_values(0)))
+    ]
     bwu = pd.DataFrame(bwuindex.to_numpy(), columns=bwu_columns)
 
     return bwu
 
-def generate_y(bwu,return_aggr=False):
+
+def generate_y(bwu, return_aggr=False):
     # Input: singleindex BWU
     # Output: singleindex BWU having only target
-    titer_column = [c for c in bwu.columns if c.startswith('X:Titer')]
-    targets= pd.DataFrame(columns = ["Y:Titer","Y:Aggr"],index=bwu.index)
+    titer_column = [c for c in bwu.columns if c.startswith("X:Titer")]
+    targets = pd.DataFrame(columns=["Y:Titer", "Y:Aggr"], index=bwu.index)
 
     # iterate through experiments
     for j in list(bwu.index):
-        x_titer = bwu.loc[j,titer_column]
+        x_titer = bwu.loc[j, titer_column]
         x_prod = [0]
         x_aggr = [0]
-        k_aggr=10**-7
+        k_aggr = 10**-7
         for i in range(len(x_titer)):
-            if i==0: continue
+            if i == 0:
+                continue
             xt_titer = x_titer[i]
-            dt_titer = x_titer[i]-x_titer[i-1]
+            dt_titer = x_titer[i] - x_titer[i - 1]
             x_prod.append(xt_titer)
-            x_aggr.append(k_aggr*(xt_titer**2))
+            x_aggr.append(k_aggr * (xt_titer**2))
 
-            dt_aggr = x_aggr[i]-x_aggr[i-1]
-            dt_prod = dt_titer - 2*dt_aggr
-            dt_aggr = k_aggr*(x_prod[i-1] + dt_prod)**2
+            dt_aggr = x_aggr[i] - x_aggr[i - 1]
+            dt_prod = dt_titer - 2 * dt_aggr
+            dt_aggr = k_aggr * (x_prod[i - 1] + dt_prod) ** 2
 
-            x_aggr[i] = x_aggr[i-1] + dt_aggr
-            x_prod[i] = x_prod[i-1] + dt_prod
+            x_aggr[i] = x_aggr[i - 1] + dt_aggr
+            x_prod[i] = x_prod[i - 1] + dt_prod
         y_prod = x_prod[-1]
         y_aggr = x_aggr[-1]
 
-        targets.loc[j,"Y:Titer"]=y_prod
-        targets.loc[j,"Y:Aggr"]=y_aggr
+        targets.loc[j, "Y:Titer"] = y_prod
+        targets.loc[j, "Y:Aggr"] = y_aggr
     if return_aggr:
         target = targets["Y:Aggr"]
     else:
