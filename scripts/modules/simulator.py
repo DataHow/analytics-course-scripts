@@ -124,7 +124,7 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
 
 
     col_names = ["timesteps", "X:VCD", "X:Glc", "X:Lac", "X:Titer","W:Feed"]
-    owu_df = pd.DataFrame(columns=col_names)
+    owu_list = []
 
     i = 0
     for i in range(num_runs):
@@ -162,9 +162,9 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
         wvar[int(feed_start):int(feed_end),:] = Glc_feed_rate
         res =  np.hstack([time, xvar,wvar])
         
-        owu_df = pd.concat(
-            [owu_df, pd.DataFrame(res, columns=col_names)], ignore_index=True
-        )
+        owu_list.append(pd.DataFrame(res, columns=col_names))
+
+    owu_df = pd.concat(owu_list, ignore_index=True)
 
 
     owu_df.to_csv(filename, index=False)
@@ -195,7 +195,7 @@ def generate_y(bwu,return_aggr=False):
 
     # iterate through experiments
     for j in list(bwu.index):
-        x_titer = bwu.loc[j,titer_column]
+        x_titer = bwu.loc[j,titer_column].to_numpy()
         x_prod = [0]
         x_aggr = [0]
         k_aggr=10**-7

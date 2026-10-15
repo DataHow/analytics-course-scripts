@@ -14,6 +14,6 @@ def vip(x, y, model):
 
     for i in range(p):
         weight = np.array([ (w[i,j] / np.linalg.norm(w[:,j]))**2 for j in range(h) ])
-        vips[i] = np.sqrt(p*(s.T @ weight)/total_s)
+        vips[i] = np.sqrt(p*(s.T @ weight)/total_s).item()
 
     return vips
