@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import scipy.stats
@@ -166,10 +168,12 @@ def generate_data(var_lims, num_runs, filename="generated_owu.csv"):
 
     owu_df = pd.concat(owu_list, ignore_index=True)
 
-
+    # create the output folder if needed and save OWU and DOE side by side
+    out_dir = os.path.dirname(filename)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     owu_df.to_csv(filename, index=False)
-    
-    doe_design.to_csv(filename.replace(".csv","_doe.csv"),index=False)
+    doe_design.to_csv(filename.replace(".csv", "_doe.csv"), index=False)
 
     return owu_df
 

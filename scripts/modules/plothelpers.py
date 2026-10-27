@@ -143,3 +143,41 @@ def plot_ensemble(X_train, y_train, X_test, y_test, y_hat, model, upper, lower):
     )
     fig.update_layout(hovermode="x")
     fig.show()
+
+
+def observed_vs_predicted(y_train, yhat_train, y_test, yhat_test, title="Observed vs Predicted"):
+    """
+    Plot observed vs predicted values for the train and test set side by side.
+
+    The subplot titles report R2, the absolute RMSE and the RMSE relative to the
+    standard deviation of the observations (a relative RMSE of 1 means the model
+    is no better than predicting the mean).
+    """
+    import numpy as np
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    from sklearn.metrics import r2_score, root_mean_squared_error
+
+    def _metrics(y, yhat):
+        y = np.asarray(y, dtype=float).reshape(-1)
+        yhat = np.asarray(yhat, dtype=float).reshape(-1)
+        rmse = root_mean_squared_error(y, yhat)
+        return round(r2_score(y, yhat), 3), round(rmse, 3), round(rmse / np.std(y), 3)
+
+    sets = [("Train Set", y_train, yhat_train), ("Test Set", y_test, yhat_test)]
+    titles = []
+    for name, y, yhat in sets:
+        r2, rmse, rel = _metrics(y, yhat)
+        titles.append(f"{name} <br> R^2 = {r2} <br> Abs RMSE = {rmse} <br> Rel RMSE = {rel}")
+
+    fig = make_subplots(rows=1, cols=2, subplot_titles=titles)
+    for col, (name, y, yhat) in enumerate(sets, start=1):
+        y = np.asarray(y, dtype=float).reshape(-1)
+        yhat = np.asarray(yhat, dtype=float).reshape(-1)
+        lo, hi = min(y.min(), yhat.min()), max(y.max(), yhat.max())
+        fig.add_trace(go.Scatter(x=y, y=yhat, mode="markers", name=name), row=1, col=col)
+        fig.add_shape(type="line", x0=lo, y0=lo, x1=hi, y1=hi, layer="below", line=dict(dash="dash"), row=1, col=col)
+        fig.update_xaxes(title_text="Observed", row=1, col=col)
+        fig.update_yaxes(title_text="Predicted", row=1, col=col)
+    fig.update_layout(title_text=title, showlegend=False)
+    fig.show()
