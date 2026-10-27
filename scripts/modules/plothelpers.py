@@ -179,5 +179,5 @@ def observed_vs_predicted(y_train, yhat_train, y_test, yhat_test, title="Observe
         fig.add_shape(type="line", x0=lo, y0=lo, x1=hi, y1=hi, layer="below", line=dict(dash="dash"), row=1, col=col)
         fig.update_xaxes(title_text="Observed", row=1, col=col)
         fig.update_yaxes(title_text="Predicted", row=1, col=col)
-    fig.update_layout(title_text=title, showlegend=False)
+    fig.update_layout(title_text=title, title_y=0.98, margin=dict(t=140), height=520, showlegend=False)
     fig.show()

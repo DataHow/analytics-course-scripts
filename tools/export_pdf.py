@@ -44,7 +44,8 @@ body { font-size: 11px; }
 .jp-RenderedHTMLCommon h1 { font-size: 1.8em; }
 pre, .jp-RenderedText pre { white-space: pre-wrap !important; word-break: break-word; }
 img { max-width: 100% !important; height: auto !important; }
-.jp-RenderedHTMLCommon table { font-size: 9px; }
+.jp-RenderedHTMLCommon table { font-size: 6.3px; max-width: 100%; }
+.jp-RenderedHTMLCommon td, .jp-RenderedHTMLCommon th { padding: 1px 3px !important; }
 </style>
 """
 
