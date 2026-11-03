@@ -61,7 +61,10 @@ def plotly_outputs_to_png(nb, scale=2):
             spec = data[PLOTLY_MIME]
             if isinstance(spec, str):
                 spec = json.loads(spec)
-            fig = go.Figure({k: spec.get(k) for k in ("data", "layout", "frames") if spec.get(k) is not None})
+            # skip_invalid: figures saved by older plotly versions may contain template
+            # entries (e.g. scattermapbox) that the installed version no longer accepts
+            fig = go.Figure({k: spec.get(k) for k in ("data", "layout", "frames") if spec.get(k) is not None},
+                            skip_invalid=True)
             width = fig.layout.width or 900
             height = fig.layout.height or 500
             png = pio.to_image(fig, format="png", width=width, height=height, scale=scale)
